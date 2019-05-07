@@ -1,0 +1,13 @@
+{
+  "name": "git-http-server",
+  "version": "1.0.0",
+  "description": "",
+  "repository": "",
+  "main": "lib",
+  "keywords": [
+    "fibjs",
+    "git"
+  ],
+  "author": "",
+  "license": "ISC"
+}
