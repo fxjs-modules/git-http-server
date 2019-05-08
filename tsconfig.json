@@ -1,5 +1,10 @@
 {
     "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "noImplicitUseStrict": true,
+        "inlineSourceMap": false,
         "typeRoots": [
             "./@types/**"
         ],

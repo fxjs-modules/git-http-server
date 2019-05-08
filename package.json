@@ -18,6 +18,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fibjs/mkdirp": "^1.0.1",
+    "@fibjs/rmdirr": "^2.0.0",
     "semver": "^6.0.0"
   },
   "devDependencies": {
