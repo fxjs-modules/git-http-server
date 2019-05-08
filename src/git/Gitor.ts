@@ -1,10 +1,11 @@
+import io = require('io')
 import fs = require('fs')
 
 import * as Utils from "./client-utils";
 import { on_command_exec } from './_utils';
 
-class GitClient implements Gitor.Client {
-    static default = GitClient
+class Gitor implements Gitor.Client {
+    static default = Gitor
     static Utils = Utils;
 
     mode: Gitor.Client['mode']
@@ -63,9 +64,9 @@ class GitClient implements Gitor.Client {
     /**
      * @override
      **/
-    rm () {
+    rm (argv: string[] = []) {
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['rm'])
+            const sp = process.open('git', ['rm', ...argv])
             sp.wait()
         })
     }
@@ -73,9 +74,23 @@ class GitClient implements Gitor.Client {
     /**
      * @override
      **/
-    show () {
+    show (argv: string[] = []): Class_BufferedStream {
+        let buf: Class_BufferedStream
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['show'])
+            const sp = process.open('git', ['show', ...argv])
+            buf = new io.BufferedStream(sp.stdout)
+            // sp.wait()
+        })
+
+        return buf
+    }
+
+    /**
+     * @override
+     **/
+    commit (argv: string[] = []) {
+        on_command_exec(this._opts.repo_dir, () => {
+            const sp = process.open('git', ['commit', ...argv])
             sp.wait()
         })
     }
@@ -83,9 +98,9 @@ class GitClient implements Gitor.Client {
     /**
      * @override
      **/
-    commit () {
+    push (argv: string[] = []) {
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['commit'])
+            const sp = process.open('git', ['push', ...argv])
             sp.wait()
         })
     }
@@ -93,12 +108,22 @@ class GitClient implements Gitor.Client {
     /**
      * @override
      **/
-    fetch () {
+    pull (argv: string[] = []) {
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['fetch'])
+            const sp = process.open('git', ['pull', ...argv])
+            sp.wait()
+        })
+    }
+
+    /**
+     * @override
+     **/
+    fetch (argv: string[] = []) {
+        on_command_exec(this._opts.repo_dir, () => {
+            const sp = process.open('git', ['fetch', ...argv])
             sp.wait()
         })
     }
 }
 
-export = GitClient
+export = Gitor

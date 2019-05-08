@@ -16,16 +16,22 @@ declare namespace Gitor {
     
     interface Client extends Operator {
         $opts: ClientOptions
-        // mode: 'stdio' | 'client'
+
+        // $remotes: ClientRemoteInfo[]
         
         add: {
-            // equivalent to `add(['--all'])`
             (argvs?: string[]): void;
         }
         rm: {
             (argvs?: string[]): void;
         }
         commit: {
+            (argvs?: string[]): void;
+        }
+        push: {
+            (argvs?: string[]): void;
+        }
+        pull: {
             (argvs?: string[]): void;
         }
         fetch: {

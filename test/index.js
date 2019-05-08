@@ -1,9 +1,12 @@
 const test = require('test')
 test.setup()
 
-const path = require('path')
+const fs = require('fs')
 const http = require('http')
+const path = require('path')
 const mq = require('mq')
+const url = require('url')
+const querystring = require('querystring')
 
 const rmdirr = require('@fibjs/rmdirr')
 
@@ -83,29 +86,118 @@ describe('utils', () => {
         })
     })
 
-    xdescribe('handlers', () => {
-        function faker_http_request(_path) {
+    odescribe('handlers', () => {
+        let server = null
+        let client = null
+        const repo_basedir = helpers.test_root('./repo_tmp/remote/')
+
+        const routing = HANDLERS.get_routing(repo_basedir)
+
+        function faker_http_request(_path, method = 'get') {
             const req = new http.Request()
-            req.address = req.value = _path;
+            req.method = method
+
+            const url_obj = url.parse(_path)
+
+            req.address = req.value = url_obj.pathname;
+            req.queryString = url_obj.query
 
             return req
         }
 
-        describe('generic', () => {
-            it('info/refs', () => {
-                const repodir = path.resolve(__dirname, './repo_tmp/remote')
-                const routing = HANDLERS.get_routing(repodir)
+        function clear () {
+            rmdirr(helpers.test_root('./repo_tmp/remote/duplex_com'))
+            rmdirr(helpers.test_root('./repo_tmp/client/duplex_com'))
+        }
 
-                const req = faker_http_request('/test2/info/refs')
+        before(() => {
+            clear()
+
+            server = new Gitor({ repo_dir: helpers.test_root('./repo_tmp/remote/duplex_com') })
+            server.init(['--bare'])
+            client = new Gitor({ repo_dir: helpers.test_root('./repo_tmp/client/duplex_com') })
+            client.init()
+            client.remote(['add', 'origin', server.$opts.repo_dir])
+        })
+
+        describe('generic (static file handler)', () => {
+            function assert_static_file (
+                http_req_path,
+                resp_content
+            ) {
+                const req = faker_http_request(http_req_path)
                 mq.invoke(routing, req)
 
-                assert.exist(req.response.body)
+                const resp = req.response
 
-                assert.exist(req.response.body.readAll())
+                assert.equal(resp.statusCode, 200)
+                assert.exist(resp.body)
+
+                const content = resp.body.readAll()
+                assert.exist(content)
+                assert.equal(
+                    content.compare(Buffer.from(resp_content)),
+                    0
+                )
+            }
+
+            it('HEAD', () => {
+                // fresh repo
+                assert_static_file('/duplex_com/HEAD', `ref: refs/heads/master\n`)
             })
+        })
 
-            it('tree/[branch]', () => {
+        odescribe('inforefs', () => {
+            function assert_inforefs (service) {
+                const req = faker_http_request(`/duplex_com/info/refs?service=${service}`)
+                mq.invoke(routing, req)
 
+                const resp = req.response
+
+                assert.equal(resp.statusCode, 200)
+                assert.exist(resp.body)
+
+                assert.equal(resp.firstHeader('Content-type'), `application/x-${service}-advertisement`)
+
+                const content = resp.body.readAll()
+                assert.exist(content)
+
+                console.notice(`inforefs response by ${service}\n`, content + '')
+            }
+
+            before(() => {
+                const files = [
+                    {
+                        filename: helpers.test_root('./repo_tmp/client/duplex_com/test.js'),
+                        filecontent: 'test.js'
+                    }
+                ];
+
+                files.forEach(fileinfo => {
+                    fs.writeTextFile(fileinfo.filename, fileinfo.filecontent)
+                })
+                client.add([`-A`])
+                client.commit([`-m"Init."`])
+                client.push(['origin', '-u', 'master'])
+
+
+                files.forEach(fileinfo => {
+                    const rel_path = path.relative(client.$opts.repo_dir, fileinfo.filename)
+                    const fileContent = client.show([`HEAD:./${rel_path}`]).readLines().join('\n')
+                    
+                    assert.equal(
+                        fileContent,
+                        fileinfo.filecontent
+                    )
+                })
+            })
+            
+            it('git-receive-pack', () => {
+                assert_inforefs('git-receive-pack')
+            })
+            
+            it('git-upload-pack', () => {
+                assert_inforefs('git-upload-pack')
             })
         })
     })

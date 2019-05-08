@@ -1,3 +1,5 @@
+import path = require('path')
+
 export function on_command_exec (repo_dir: string, sync_callback: Function, self: any = null) {
     const old_cwd = process.cwd();
 
@@ -10,4 +12,12 @@ export function on_command_exec (repo_dir: string, sync_callback: Function, self
 
     if (process.cwd() !== old_cwd)
         process.chdir(old_cwd)
+}
+
+export function auto_resolve_dotgit (repodir: string) {
+    // auto resolve project directory with .git.
+    if (!repodir.endsWith('.git') && fs.exists(path.resolve(repodir, '.git')))
+        repodir = path.resolve(repodir, '.git')
+
+    return repodir
 }
