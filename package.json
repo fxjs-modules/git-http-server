@@ -3,11 +3,25 @@
   "version": "1.0.0",
   "description": "",
   "repository": "",
+  "types": "@types/index.d.ts",
   "main": "lib",
+  "scripts": {
+    "test:utils": "fibjs ./test",
+    "build": "fib-typify src -o lib",
+    "ci": "npm run build && npm run test",
+    "test": "fibjs ./test"
+  },
   "keywords": [
     "fibjs",
     "git"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "semver": "^6.0.0"
+  },
+  "devDependencies": {
+    "@fibjs/types": "^0.27.0",
+    "fib-typify": "^0.5.2"
+  }
 }

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "typeRoots": [
+            "./@types/**"
+        ],
+        "types": [
+            "@fibjs/types"
+        ]
+    }
+}

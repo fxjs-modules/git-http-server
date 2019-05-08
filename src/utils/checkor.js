@@ -1,4 +1,4 @@
-// const semver = require('semver')
+const semver = require('semver')
 
 const GITOR_EXP = /^git version (\d+\.\d+\.\d+) \(.+\)/
 
@@ -7,7 +7,7 @@ function compute_git_version_from_raw_string (input) {
     return exec_result[1]
 }
 
-exports.git_checkor = function (should_throw = false) {
+exports.git = function (should_throw = false) {
     let payload = {
         result: {
            version: null,
@@ -25,6 +25,31 @@ exports.git_checkor = function (should_throw = false) {
         payload.result.error = error
 
         console.error(`no required git installed`)
+
+        if (should_throw)
+            throw error
+    }
+
+    return payload
+}
+
+exports.npm = function (should_throw = false) {
+    let payload = {
+        result: {
+           version: null,
+        },
+        error: null
+    }
+    
+    try {
+        const subp = process.open('npm', ['--version'])
+        const sem = subp.readLine()
+        payload.result.version = semver(sem).raw
+    } catch (error) {
+        payload.result.version = null
+        payload.result.error = error
+
+        console.error(`no required npm installed`)
 
         if (should_throw)
             throw error
