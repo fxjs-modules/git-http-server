@@ -17,7 +17,8 @@ exports.git = function (should_throw = false) {
     
     try {
         const subp = process.open('git', ['--version'])
-        const v = payload.result.version = compute_git_version_from_raw_string(
+        subp.wait()
+        payload.result.version = compute_git_version_from_raw_string(
             subp.readLine()
         )
     } catch (error) {
@@ -43,6 +44,7 @@ exports.npm = function (should_throw = false) {
     
     try {
         const subp = process.open('npm', ['--version'])
+        subp.wait()
         const sem = subp.readLine()
         payload.result.version = semver(sem).raw
     } catch (error) {
