@@ -19,6 +19,12 @@ declare namespace Gitor {
 
         // $remotes: ClientRemoteInfo[]
         
+        // clone: {
+        //     (argvs?: string[]): void;
+        // }
+        checkout: {
+            (argvs?: string[]): void;
+        }
         add: {
             (argvs?: string[]): void;
         }
@@ -35,6 +41,9 @@ declare namespace Gitor {
             (argvs?: string[]): void;
         }
         fetch: {
+            (argvs?: string[]): void;
+        }
+        branch: {
             (argvs?: string[]): void;
         }
 

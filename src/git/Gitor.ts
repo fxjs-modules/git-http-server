@@ -49,6 +49,16 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
+    checkout (argv: string[] = []) {
+        on_command_exec(this._opts.repo_dir, () => {
+            const sp = process.open('git', ['checkout', ...argv])
+            sp.wait()
+        })
+    }
+    
+    /**
+     * @override
+     **/
     add (argv: string[] = []) {
         on_command_exec(this._opts.repo_dir, () => {
             const sp = process.open('git', ['add', ...argv])
@@ -126,6 +136,16 @@ class Gitor implements Gitor.Client {
     fetch (argv: string[] = []) {
         on_command_exec(this._opts.repo_dir, () => {
             const sp = process.open('git', ['fetch', ...argv])
+            sp.wait()
+        })
+    }
+
+    /**
+     * @override
+     **/
+    branch (argv: string[] = []) {
+        on_command_exec(this._opts.repo_dir, () => {
+            const sp = process.open('git', ['branch', ...argv])
             sp.wait()
         })
     }

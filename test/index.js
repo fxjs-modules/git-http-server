@@ -108,6 +108,7 @@ describe('utils', () => {
         function clear () {
             rmdirr(helpers.test_root('./repo_tmp/remote/duplex_com'))
             rmdirr(helpers.test_root('./repo_tmp/client/duplex_com'))
+            rmdirr(helpers.test_root('./repo_tmp/client/duplex_by_http'))
         }
 
         before(() => {
@@ -141,9 +142,14 @@ describe('utils', () => {
                 )
             }
 
-            it('HEAD', () => {
+            it('repo: HEAD', () => {
                 // fresh repo
                 assert_static_file('/duplex_com/HEAD', `ref: refs/heads/master\n`)
+            })
+
+            it('repo: description', () => {
+                // fresh repo
+                // assert_static_file('/duplex_com/description', `\n`)
             })
         })
 
@@ -162,7 +168,7 @@ describe('utils', () => {
                 const content = resp.body.readAll()
                 assert.exist(content)
 
-                console.notice(`inforefs response by ${service}\n`, content + '')
+                // console.notice(`inforefs response by ${service}\n`, content + '')
             }
 
             before(() => {
@@ -202,6 +208,43 @@ describe('utils', () => {
             
             it('git-upload-pack', () => {
                 assert_inforefs('git-upload-pack')
+            })
+
+            // TODO: more git-[command] ...
+        })
+
+        describe('rpc', () => {
+            const T = {
+                server: null,
+                get origin_url () {
+                    return `http://localhost:${T.server.socket.localPort}/duplex_com`
+                },
+                client: null
+            }
+
+            before(() => {
+                T.client = new Gitor({ repo_dir: helpers.test_root('./repo_tmp/client/duplex_by_http') })
+                T.client.init()
+
+                T.server = helpers.get_http_server(helpers.test_root('./repo_tmp/remote/'))
+                process.nextTick(() => {
+                    console.notice(`server started on listening ${T.server.socket.localPort}`)
+                })
+                T.server.asyncRun()
+
+                T.client.remote(['add', 'origin_http', T.origin_url])
+            })
+            after(() => {
+                T.server.stop()
+            })
+
+            it('get fetch', () => {
+                T.client.fetch(['origin_http'])
+            })
+
+            it('get pull', () => {
+                T.client.checkout(['-b', 'master'])
+                T.client.pull(['origin_http', 'master'])
             })
         })
     })
