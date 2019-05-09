@@ -9,6 +9,7 @@
     "test:utils": "fibjs ./test",
     "build": "fib-typify src -o lib",
     "ci": "npm run build && npm run test",
+    "start": "npm run build && fibjs test/svr.js",
     "test": "fibjs ./test"
   },
   "keywords": [

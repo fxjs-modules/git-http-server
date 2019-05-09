@@ -4,13 +4,18 @@ import fs = require('fs')
 import * as Utils from "./client-utils";
 import { on_command_exec } from './_utils';
 
+import * as handlers from '../utils/handlers';
+import * as checkor from '../utils/checkor';
+
 class Gitor implements Gitor.Client {
     static default = Gitor
     static Utils = Utils;
 
+    static handlers = handlers;
+    static checkor = checkor;
+
     mode: Gitor.Client['mode']
 
-    
     constructor (
         private _opts: Gitor.ClientConstructorOptions = {
             repo_dir: null,
