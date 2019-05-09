@@ -7,6 +7,12 @@ import querystring = require('querystring')
 // // import Gitor = require('../git/Gitor')
 
 const GIT_PREFIX_LEN = 'git-'.length
+const LF = '\n'
+/**
+ * @see https://github.com/git/git/blob/master/Documentation/technical/http-protocol.txt
+ * 
+ * @param repo_basedir 
+ */
 export function get_handlers (repo_basedir: string) {
     // auto create `repo_basedir` if it doesn't existed.
     const fileHandler = http.fileHandler(repo_basedir)
@@ -25,9 +31,6 @@ export function get_handlers (repo_basedir: string) {
             }
 
             fileHandler.invoke(request)
-            // const target = path.resolve(repo_dir, file_uri)
-            // const stm = fs.openFile(target)
-            // resp.body.write(stm.readAll())
         },
         git_inforefs (request: Class_HttpRequest, reponame: string) {
             const resp = request.response
@@ -39,7 +42,7 @@ export function get_handlers (repo_basedir: string) {
                 return 
             }
             
-            if (request.isEnded()) return ;
+            if (request.response.isEnded()) return ;
 
             let input_data = null as Fibjs.AnyObject
             try {
@@ -61,15 +64,16 @@ export function get_handlers (repo_basedir: string) {
                 return 
             }
 
-            const cmd = service.slice(GIT_PREFIX_LEN)
 
             resp.addHeader({
-                'Content-Type': `application/x-${cmd}-advertisement`
+                'Content-Type': `application/x-${service}-advertisement`,
+                'Cache-Control': `no-cache`
             })
 
             resp.body.rewind()
             
-            // deal with error
+            const cmd = service.slice(GIT_PREFIX_LEN)
+            // TODO: deal with error
             const sp = process.open(
                 "git",
                 [
@@ -80,11 +84,9 @@ export function get_handlers (repo_basedir: string) {
                 ]
             )
 
-            // const serverAdvert = `# service=${service}\n`
-            // const line_len = serverAdvert.length + 4
+            const serverAdvert = `# service=${service}${LF}`
+            const line_len = serverAdvert.length + 4
             
-            const serverAdvert = `# service=${service}`
-            const line_len = serverAdvert.length + 4 + 1
             const head_mark = line_len.toString(16).padStart(4, '0')
             sp.wait()
 
@@ -94,8 +96,9 @@ export function get_handlers (repo_basedir: string) {
             let slice = null
             while (slice = sp.stdout.readLine()) {
                 resp.body.write(slice as any)
-                // resp.body.write('\n')
+                resp.body.write(LF as any)
             }
+            resp.body.truncate(resp.body.size() - 1)
                 
             resp.body.rewind()
         },

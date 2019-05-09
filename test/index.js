@@ -157,7 +157,7 @@ describe('utils', () => {
                 assert.equal(resp.statusCode, 200)
                 assert.exist(resp.body)
 
-                assert.equal(resp.firstHeader('Content-type'), `application/x-${service.slice(4)}-advertisement`)
+                assert.equal(resp.firstHeader('Content-type'), `application/x-${service}-advertisement`)
 
                 const content = resp.body.readAll()
                 assert.exist(content)
