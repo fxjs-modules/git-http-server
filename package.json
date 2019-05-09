@@ -19,12 +19,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fibjs/detect-port": "^1.0.2",
     "@fibjs/mkdirp": "^1.0.1",
     "@fibjs/rmdirr": "^2.0.0",
     "semver": "^6.0.0"
   },
   "devDependencies": {
+    "@fibjs/detect-port": "^1.0.2",
     "@fibjs/types": "^0.27.0",
     "fib-typify": "^0.5.2"
   }

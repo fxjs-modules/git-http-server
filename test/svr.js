@@ -1,13 +1,6 @@
-const http = require('http')
-
-const Gitor = require('..')
 const helpers = require('./spec_helpers')
 
-const git_routing = Gitor.handlers.get_routing(
-    helpers.test_root('./repo_tmp/remote/')
-)
-
-const svr = new http.Server(8090, git_routing)
+const svr = helpers.get_http_server(helpers.test_root('./repo_tmp/remote/'), 8090)
 
 process.nextTick(() => {
     console.log(`server started on listening ${svr.socket.localPort}`)
