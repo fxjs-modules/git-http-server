@@ -4,8 +4,6 @@ import fs = require('fs')
 import path = require('path')
 import querystring = require('querystring')
 
-// // import Gitor = require('../git/Gitor')
-
 const GIT_PREFIX_LEN = 'git-'.length
 const LF = '\n'
 /**
@@ -19,30 +17,15 @@ export function get_handlers (repo_basedir: string) {
     
     return {
         git_generic (request: Class_HttpRequest, reponame: string, file_uri: string) {
-            if (request.isEnded()) return ;
-
-            const resp = request.response
-            const repo_dir = path.resolve(repo_basedir, reponame)
-
-            if (!fs.exists(repo_dir)) {
-                resp.statusCode = 404
-                resp.body.write('Not Found' as any)
-                return 
-            }
+            if (request.response.isEnded()) return ;
 
             fileHandler.invoke(request)
         },
         git_inforefs (request: Class_HttpRequest, reponame: string) {
             const resp = request.response
             const repo_dir = path.resolve(repo_basedir, reponame)
-
-            if (!fs.exists(repo_dir)) {
-                resp.statusCode = 404
-                resp.body.write('Not Found' as any)
-                return 
-            }
             
-            if (request.response.isEnded()) return ;
+            if (resp.isEnded()) return ;
 
             let input_data = null as Fibjs.AnyObject
             try {
@@ -64,7 +47,6 @@ export function get_handlers (repo_basedir: string) {
                 return 
             }
 
-
             resp.addHeader({
                 'Content-Type': `application/x-${service}-advertisement`,
                 'Cache-Control': `no-cache`
@@ -72,12 +54,12 @@ export function get_handlers (repo_basedir: string) {
 
             resp.body.rewind()
             
-            const cmd = service.slice(GIT_PREFIX_LEN)
+            const command = service.slice(GIT_PREFIX_LEN)
             // TODO: deal with error
             const sp = process.open(
                 "git",
                 [
-                    cmd,
+                    command,
                     "--stateless-rpc",
                     "--advertise-refs",
                     repo_dir
@@ -102,9 +84,46 @@ export function get_handlers (repo_basedir: string) {
                 
             resp.body.rewind()
         },
-        git_branch (request: Class_HttpRequest, branch_name: string) {
-        },
-        
+        git_rpc (request: Class_HttpRequest, reponame: string, command: string) {
+            const resp = request.response
+            const repo_dir = path.resolve(repo_basedir, reponame)
+            
+            if (resp.isEnded()) return ;
+
+            if (!command) {
+                resp.statusCode = 400
+                resp.body.write('Invalid request' as any)
+                return 
+            }
+
+            resp.addHeader({
+                'Content-Type': `application/x-git-${command}-advertisement`,
+                'Cache-Control': `no-cache`
+            })
+            const sp = process.open(
+                "git",
+                [
+                    command,
+                    "--stateless-rpc",
+                    repo_dir
+                ]
+            )
+
+            request.body.copyTo(sp, -1/* , () => void 0 */)
+            sp.copyTo(request.response.body, -1/* , () => void 0 */)
+
+            sp.wait()
+
+            if (command === 'receive-pack')
+                process.start(
+                    "git",
+                    [
+                        "--git-dir",
+                        repo_dir,
+                        "update-server-info"
+                    ]
+                ).wait()
+        }        
     }
 }
 
@@ -138,17 +157,43 @@ function logger (marks: string = '*') {
     }
 }
 
+function repo_checkor (repo_basedir: string) {
+    return function (request: Class_HttpRequest, reponame: string) {
+        const resp = request.response
+        const repo_dir = path.resolve(repo_basedir, reponame)
+
+        if (!fs.exists(repo_dir)) {
+            resp.statusCode = 404
+            resp.body.write('Not Found' as any)
+
+            resp.end()
+            return 
+        }
+    }
+}
+
 export function get_routing (repo_basedir: string) {
     const handlers = get_handlers(repo_basedir);
     const routing = new mq.Routing({
-        // just for learn and deal
         "/:reponame/info/refs": [
-            logger('inforefs'), filter_method(['head', 'get']), handlers.git_inforefs
+            filter_method(['head', 'get']),
+            // logger('inforefs'),
+            repo_checkor(repo_basedir),
+            handlers.git_inforefs
+        ],
+        "/:reponame/git-([^/]+)?": [
+            filter_method(['post']),
+            // logger('repofiles'),
+            repo_checkor(repo_basedir),
+            handlers.git_rpc
         ],
         // "/([^\/]+)\/?(.*)?": [
         // "/:reponame/*": [
         "/:reponame(.*)?": [
-            logger('repofiles'), filter_method(['head', 'get']), handlers.git_generic
+            filter_method(['head', 'get']),
+            // logger('repofiles'),
+            repo_checkor(repo_basedir),
+            handlers.git_generic
         ],
         '*': [
             logger('*')
