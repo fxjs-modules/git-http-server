@@ -86,7 +86,7 @@ describe('utils', () => {
         })
     })
 
-    odescribe('handlers', () => {
+    describe('handlers', () => {
         let server = null
         let client = null
         const repo_basedir = helpers.test_root('./repo_tmp/remote/')
@@ -147,7 +147,7 @@ describe('utils', () => {
             })
         })
 
-        odescribe('inforefs', () => {
+        describe('inforefs', () => {
             function assert_inforefs (service) {
                 const req = faker_http_request(`/duplex_com/info/refs?service=${service}`)
                 mq.invoke(routing, req)
@@ -170,6 +170,10 @@ describe('utils', () => {
                     {
                         filename: helpers.test_root('./repo_tmp/client/duplex_com/test.js'),
                         filecontent: 'test.js'
+                    },
+                    {
+                        filename: helpers.test_root('./repo_tmp/client/duplex_com/test.ts'),
+                        filecontent: 'test.ts'
                     }
                 ];
 

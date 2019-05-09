@@ -4,7 +4,7 @@ import fs = require('fs')
 import path = require('path')
 import querystring = require('querystring')
 
-import Gitor = require('../git/Gitor')
+// // import Gitor = require('../git/Gitor')
 
 const GIT_PREFIX_LEN = 'git-'.length
 export function get_handlers (repo_basedir: string) {
