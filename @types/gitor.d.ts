@@ -2,17 +2,19 @@ declare namespace Gitor {
     interface Operator {
         $opts: OperatorOptions
         init: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         remote: {
             // equivalent to `remote(['--all'])`
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
     }
 
     interface OperatorOptions {
         repo_dir: string
     }
+
+    type GitOperationArgs = [string[]] | string[]
     
     interface Client extends Operator {
         $opts: ClientOptions
@@ -23,28 +25,28 @@ declare namespace Gitor {
         //     (argvs?: string[]): void;
         // }
         checkout: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         add: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         rm: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         commit: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         push: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         pull: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         fetch: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
         branch: {
-            (argvs?: string[]): void;
+            (...argvs: GitOperationArgs): void;
         }
 
         [k: string]: any

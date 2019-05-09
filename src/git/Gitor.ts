@@ -2,7 +2,7 @@ import io = require('io')
 import fs = require('fs')
 
 import * as Utils from "./client-utils";
-import { on_command_exec } from './_utils';
+import { on_command_exec, normalizeSpreadStyleArgs } from './_utils';
 
 import * as handlers from '../utils/handlers';
 import * as checkor from '../utils/checkor';
@@ -39,9 +39,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    init (argv: string[] = []) {
+    init (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['init', ...argv])
+            const sp = process.open('git', ['init', ...args])
             sp.wait()
         })
     }
@@ -49,9 +50,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    checkout (argv: string[] = []) {
+    checkout (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['checkout', ...argv])
+            const sp = process.open('git', ['checkout', ...args])
             sp.wait()
         })
     }
@@ -59,9 +61,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    add (argv: string[] = []) {
+    add (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['add', ...argv])
+            const sp = process.open('git', ['add', ...args])
             sp.wait()
         })
     }
@@ -69,9 +72,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    remote (argv: string[] = []) {
+    remote (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['remote', ...argv])
+            const sp = process.open('git', ['remote', ...args])
             sp.wait()
         })
     }
@@ -79,9 +83,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    rm (argv: string[] = []) {
+    rm (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['rm', ...argv])
+            const sp = process.open('git', ['rm', ...args])
             sp.wait()
         })
     }
@@ -89,10 +94,11 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    show (argv: string[] = []): Class_BufferedStream {
+    show (...argvs: Gitor.GitOperationArgs): Class_BufferedStream {
         let buf: Class_BufferedStream
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['show', ...argv])
+            const sp = process.open('git', ['show', ...args])
             buf = new io.BufferedStream(sp.stdout)
             // sp.wait()
         })
@@ -103,9 +109,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    commit (argv: string[] = []) {
+    commit (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['commit', ...argv])
+            const sp = process.open('git', ['commit', ...args])
             sp.wait()
         })
     }
@@ -113,9 +120,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    push (argv: string[] = []) {
+    push (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['push', ...argv])
+            const sp = process.open('git', ['push', ...args])
             sp.wait()
         })
     }
@@ -123,9 +131,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    pull (argv: string[] = []) {
+    pull (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['pull', ...argv])
+            const sp = process.open('git', ['pull', ...args])
             sp.wait()
         })
     }
@@ -133,9 +142,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    fetch (argv: string[] = []) {
+    fetch (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['fetch', ...argv])
+            const sp = process.open('git', ['fetch', ...args])
             sp.wait()
         })
     }
@@ -143,9 +153,10 @@ class Gitor implements Gitor.Client {
     /**
      * @override
      **/
-    branch (argv: string[] = []) {
+    branch (...argvs: Gitor.GitOperationArgs) {
+        const args = normalizeSpreadStyleArgs(argvs)
         on_command_exec(this._opts.repo_dir, () => {
-            const sp = process.open('git', ['branch', ...argv])
+            const sp = process.open('git', ['branch', ...args])
             sp.wait()
         })
     }

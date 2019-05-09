@@ -244,7 +244,7 @@ describe('utils', () => {
 
             it('get pull', () => {
                 T.client.checkout(['-b', 'master'])
-                T.client.pull(['origin_http', 'master'])
+                T.client.pull('origin_http', 'master')
             })
         })
     })
