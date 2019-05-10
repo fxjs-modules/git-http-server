@@ -16,11 +16,21 @@ export function get_handlers (repo_basedir: string) {
     const fileHandler = http.fileHandler(repo_basedir)
     
     return {
-        git_generic (request: Class_HttpRequest, reponame: string, file_uri: string) {
+        /**
+         * @description handler for generic request (for static files in .git), auto gzip due to fileHanlder's capability
+         * @see https://github.com/git/git/blob/master/Documentation/technical/http-protocol.txt
+         * 
+         */
+        git_generic (request: Class_HttpRequest) {
             if (request.response.isEnded()) return ;
 
             fileHandler.invoke(request)
         },
+        /**
+         * @description handler for info/refs request
+         * @see https://github.com/git/git/blob/master/Documentation/technical/http-protocol.txt
+         * 
+         */
         git_inforefs (request: Class_HttpRequest, reponame: string) {
             const resp = request.response
             const repo_dir = path.resolve(repo_basedir, reponame)
@@ -84,6 +94,11 @@ export function get_handlers (repo_basedir: string) {
                 
             resp.body.rewind()
         },
+        /**
+         * @description handler for post request
+         * @see https://github.com/git/git/blob/master/Documentation/technical/http-protocol.txt
+         * 
+         */
         git_rpc (request: Class_HttpRequest, reponame: string, command: string) {
             const resp = request.response
             const repo_dir = path.resolve(repo_basedir, reponame)
@@ -115,7 +130,7 @@ export function get_handlers (repo_basedir: string) {
             sp.wait()
 
             if (command === 'receive-pack')
-                process.start(
+                process.open(
                     "git",
                     [
                         "--git-dir",

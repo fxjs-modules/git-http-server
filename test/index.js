@@ -6,7 +6,6 @@ const http = require('http')
 const path = require('path')
 const mq = require('mq')
 const url = require('url')
-const querystring = require('querystring')
 
 const rmdirr = require('@fibjs/rmdirr')
 
@@ -164,6 +163,7 @@ describe('utils', () => {
                 assert.exist(resp.body)
 
                 assert.equal(resp.firstHeader('Content-type'), `application/x-${service}-advertisement`)
+                assert.equal(resp.firstHeader('Cache-control'), `no-cache`)
 
                 const content = resp.body.readAll()
                 assert.exist(content)
